@@ -1,22 +1,24 @@
-# Jupyter Notebook checkpoints
+# jupyter notebook checkpoints
 .ipynb_checkpoints/
 
-# Python compiled files
+# python compiled files
 __pycache__/
 
-# Environment variables
+# environment variables
 .env
 
-# Virtual environment
+# virtual environment
 venv/
 .venv/
 
-# VS Code settings
-.vscode/
-
-# Large data files or outputs (adjust as needed)
+# large data files or outputs (adjust as needed)
 *.csv
 *.xlsx
 *.parquet
 *.pkl
 output/
+
+# model files
+*.pth
+*.joblib
+
