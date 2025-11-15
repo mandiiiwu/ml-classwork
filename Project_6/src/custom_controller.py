@@ -100,13 +100,11 @@ def train(num_gens, pop_size, num_trials, num_elite, surv_rate, log_file):
             bestever_pieces = best_pieces
             bestever_rows = best_rows
 
-            # Save best weights
             save_path = 'src/custom_data/best_weights.npy'
             os.makedirs('src/custom_data', exist_ok=True)
             np.save(save_path, bestever_weights)
             print(f"good model!!! saved to {save_path}")
 
-        # Log statistics
         print('=' * 70)
         print(f"gen {gen+1} summary:")
         print(f"  best fitness:    {best_fit:.2f} (pieces={best_pieces}, rows={best_rows})")
@@ -160,7 +158,7 @@ def train(num_gens, pop_size, num_trials, num_elite, surv_rate, log_file):
 
 if __name__ == '__main__':
     best_weights, log = train(
-        num_gens=30,     # rec: 30-100 
+        num_gens=30,            # rec: 30-100 
         pop_size=20,            # rec: 20-50
         num_trials=3,           # games per fitness eval
         num_elite=3,            # top n agents to keep
