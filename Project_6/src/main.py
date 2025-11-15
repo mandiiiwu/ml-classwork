@@ -15,11 +15,11 @@ def main():
     g = Game(sys.argv[1])
     start = time.time() 
     g.run_no_visual()
+    # g.run()
     end = time.time() 
     dur = end - start
     print(f'duration: {dur}')
     
-    # g.run()
 
     # for a visual, comment out line 16 and uncomment line 17 
 

@@ -1,3 +1,4 @@
+import numpy as np
 from board import Board
 from time import sleep
 from greedy import Greedy_AI
@@ -38,6 +39,11 @@ class Game:
             self.ai = RandomChoice_NOT_AI()
         elif mode == "student":
             self.ai = CUSTOM_AI_MODEL()
+        # AFTER TRAINING, comment out line 41 and uncomment the following: 
+        # try:
+        #     weights = np.load('src/custom_data/best_weights.npy')
+        #     self.ai = CUSTOM_AI_MODEL(genotype=weights)
+        # except: self.ai = CUSTOM_AI_MODEL()
         else:
             self.ai = None
 
