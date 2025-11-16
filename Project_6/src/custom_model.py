@@ -1,6 +1,7 @@
 from copy import copy, deepcopy
 import numpy as np
 import pygame
+import torch
 from piece import BODIES, Piece
 from board import Board
 from random import randint
@@ -11,59 +12,60 @@ Add your code here
 """
 
 class NeuralNetwork: 
-    def __init__(self, input_size=9, hidden_size=16, weights=None):
+    def __init__(self, input_size=9, hidden_size=16, weights=None, device='cpu'):
         self.input_size = input_size
         self.hidden_size = hidden_size
+        self.device = device 
 
         if weights is None:
             # xavier initialization for weights
             lim1 = np.sqrt(6 / (input_size + hidden_size))
             lim2 = np.sqrt(6 / (hidden_size + 1))
 
-            self.W1 = np.random.uniform(-lim1, lim1, (input_size, hidden_size))
-            self.W2 = np.random.uniform(-lim2, lim2, (hidden_size, 1))
+            self.W1 = torch.FloatTensor(input_size, hidden_size).uniform_(-lim1, lim1).to(device)
+            self.W2 = torch.FloatTensor(hidden_size, 1).uniform_(-lim2, lim2).to(device)
 
-            self.b1 = np.zeros(hidden_size)
-            self.b2 = np.zeros(1)
+            self.b1 = torch.zeros(hidden_size, device=device)
+            self.b2 = torch.zeros(1, device=device)
+
         else:
             # reconstruct from flattened like in typical genetic algs 
             self.set_weights(weights) 
     
-    # def relu(self, x):
-    #     return np.maximum(0, x)
-    
-    def leaky_relu(self, x, alpha=0.01):
-        return np.where(x>0, x, alpha*x)
-    
     def forward(self, x):
-        h = self.leaky_relu(np.dot(x, self.W1) + self.b1)
-        out = np.dot(h, self.W2) + self.b2
-        return out[0] 
+        if not isinstance(x, torch.Tensor):
+            x = torch.FloatTensor(x).to(self.device)
+
+        h = torch.nn.functional.leaky_relu(torch.matmul(x, self.W1) + self.b1, negative_slope=0.01)
+        out = torch.matmul(h, self.W2) + self.b2
+        return out.item() 
     
     def get_f_weights(self):
         # flatten weights into one vector 
         return np.concatenate([
-            self.W1.flatten(),
-            self.b1.flatten(),
-            self.W2.flatten(),
-            self.b2.flatten()
+            self.W1.cpu().detach().numpy().flatten(),
+            self.b1.cpu().detach().numpy().flatten(),
+            self.W2.cpu().detach().numpy().flatten(),
+            self.b2.cpu().detach().numpy().flatten()
         ])
     
     def set_weights(self, weights):
         idx = 0
 
         w1_size = self.input_size * self.hidden_size
-        self.W1 = weights[idx:idx+w1_size].reshape(self.input_size, self.hidden_size)
+        self.W1 = torch.FloatTensor(weights[idx:idx+w1_size].reshape(
+            self.input_size, self.hidden_size)).to(self.device)
         idx += w1_size
 
-        self.b1 = weights[idx:idx+self.hidden_size]
+        self.b1 = torch.FloatTensor(weights[idx:idx+self.hidden_size]).to(self.device)
         idx += self.hidden_size
 
         w2_size = self.hidden_size
-        self.W2 = weights[idx:idx+w2_size].reshape(self.hidden_size, 1)
+        self.W2 = torch.FloatTensor(weights[idx:idx+w2_size].reshape(
+            self.hidden_size, 1)).to(self.device)
         idx += w2_size
 
-        self.b2 = weights[idx:idx+1]
+        self.b2 = torch.FloatTensor(weights[idx:idx+1]).to(self.device)
 
     def get_weight_count(self):
         return(self.input_size * self.hidden_size + 
@@ -71,15 +73,17 @@ class NeuralNetwork:
 
 
 class CUSTOM_AI_MODEL:
-    def __init__(self, genotype=None, input_size=9, hidden_size=16, lr=0.001, momentum=0.9):
+    def __init__(self, genotype=None, input_size=9, hidden_size=16, lr=0.001, momentum=0.9, device='cpu'):
         self.input_size = input_size
         self.hidden_size = hidden_size
         self.lr = lr
         self.momentum = momentum
 
+        self.device = device
+
         if genotype is not None:
-            self.net = NeuralNetwork(self.input_size, self.hidden_size, genotype)
-        else: self.net = NeuralNetwork(self.input_size, self.hidden_size)
+            self.net = NeuralNetwork(self.input_size, self.hidden_size, genotype, device)
+        else: self.net = NeuralNetwork(self.input_size, self.hidden_size, device=device)
 
         self.vel = np.zeros(self.net.get_weight_count())
         self.best_sc = -np.inf 

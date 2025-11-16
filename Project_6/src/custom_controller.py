@@ -4,6 +4,7 @@ from custom_model import CUSTOM_AI_MODEL
 import random
 import pandas as pd
 import os
+from gpu_utils import setup_device, print_gpu_status
 
 def compute_fitness(agent, num_trials=3):
     fitness_scores = []
@@ -21,7 +22,7 @@ def compute_fitness(agent, num_trials=3):
     return avg_fitness
 
 
-def crossover(parent1, parent2):
+def crossover(parent1, parent2, device='cpu'):
     ws1 = parent1.get_genotype()
     ws2 = parent2.get_genotype()
 
@@ -32,7 +33,7 @@ def crossover(parent1, parent2):
         ws2[i:]
     ])
 
-    return CUSTOM_AI_MODEL(genotype=child_ws)
+    return CUSTOM_AI_MODEL(genotype=child_ws, device=device)
 
 
 def mutate(agent, mutation_rate=0.15, mutation_scale=0.3):
@@ -60,11 +61,13 @@ def train(num_gens, pop_size, num_trials, num_elite, surv_rate, log_file):
     print(f"surv rate: {surv_rate}")
     print('=' * 70)
 
+    device = setup_device()
+
     headers = ['generation', 'best_fitness', 'avg_fitness', 'elite_fitness',
                'best_pieces', 'best_rows']
     data_log = []
 
-    population = [CUSTOM_AI_MODEL() for _ in range(pop_size)]
+    population = [CUSTOM_AI_MODEL(device=device) for _ in range(pop_size)]
 
     # track best agent
     bestever_fit = -np.inf
@@ -126,7 +129,7 @@ def train(num_gens, pop_size, num_trials, num_elite, surv_rate, log_file):
 
             for i in range(num_elite):
                 elite_weights = fit_data[i][1].get_genotype()
-                elite_agent = CUSTOM_AI_MODEL(genotype=elite_weights.copy())
+                elite_agent = CUSTOM_AI_MODEL(genotype=elite_weights.copy(), device=device)
                 next_gen.append(elite_agent)
 
             num_parents = max(2, int(pop_size * surv_rate))
@@ -135,7 +138,7 @@ def train(num_gens, pop_size, num_trials, num_elite, surv_rate, log_file):
             while len(next_gen) < pop_size:
                 parent1, parent2 = random.sample(parents, 2)
 
-                child = crossover(parent1, parent2)
+                child = crossover(parent1, parent2, device=device)
                 child = mutate(child, mutation_rate=0.15, mutation_scale=0.3)
 
                 next_gen.append(child)
