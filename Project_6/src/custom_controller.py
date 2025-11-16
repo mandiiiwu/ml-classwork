@@ -8,6 +8,8 @@ from gpu_utils import setup_device, print_gpu_status
 
 def compute_fitness(agent, num_trials=3):
     fitness_scores = []
+    pieces = []
+    rows = []
 
     for trial in range(num_trials):
         game = Game('student', agent=agent)
@@ -16,10 +18,16 @@ def compute_fitness(agent, num_trials=3):
         fitness = p_dropped + (rows_cleared * 2.0)
         fitness_scores.append(fitness)
 
+        pieces.append(p_dropped)
+        rows.append(rows_cleared)
+
         print(f"      trial {trial+1}/{num_trials}: pieces={p_dropped}, rows={rows_cleared}, fitness={fitness:.2f}")
 
     avg_fitness = np.mean(fitness_scores)
-    return avg_fitness
+    avg_pieces = np.mean(pieces)
+    avg_rows = np.mean(rows)
+
+    return avg_fitness, avg_pieces, avg_rows
 
 
 def crossover(parent1, parent2, device='cpu'):
@@ -83,20 +91,19 @@ def train(num_gens, pop_size, num_trials, num_elite, surv_rate, log_file):
 
         fit_data = []
         for i, agent in enumerate(population):
-            fitness = compute_fitness(agent, num_trials)
-            fit_data.append((fitness, agent, i))
+            fitness, pieces, rows = compute_fitness(agent, num_trials)
+            fit_data.append((fitness, agent, i, pieces, rows))
             print(f"    agent {i+1} average fitness: {fitness:.2f}")
 
         fit_data.sort(reverse=True, key=lambda x: x[0])
 
         best_fit = fit_data[0][0]
-        avg_fit = np.mean([f for f, _, _ in fit_data])
-        elite_fit = np.mean([f for f, _, _ in fit_data[:num_elite]])
-
-        print(f"\testing best agent of gen {gen+1}...")
         best_agent = fit_data[0][1]
-        test_game = Game('student', agent=best_agent)
-        best_pieces, best_rows = test_game.run_no_visual()
+        best_pieces = fit_data[0][3]
+        best_rows = fit_data[0][4]
+
+        avg_fit = np.mean([f for f, _, _, _, _ in fit_data])
+        elite_fit = np.mean([f for f, _, _, _, _ in fit_data[:num_elite]])
 
         if best_fit > bestever_fit:
             bestever_fit = best_fit
@@ -134,7 +141,7 @@ def train(num_gens, pop_size, num_trials, num_elite, surv_rate, log_file):
                 next_gen.append(elite_agent)
 
             num_parents = max(2, int(pop_size * surv_rate))
-            parents = [agent for _, agent, _ in fit_data[:num_parents]]
+            parents = [agent for _, agent, _, _, _ in fit_data[:num_parents]]
 
             while len(next_gen) < pop_size:
                 parent1, parent2 = random.sample(parents, 2)

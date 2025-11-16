@@ -14,8 +14,8 @@ def main():
     # textfile.close()
     g = Game(sys.argv[1])
     start = time.time() 
-    g.run_no_visual()
-    # g.run()
+    # g.run_no_visual()
+    g.run()
     end = time.time() 
     dur = end - start
     print(f'duration: {dur}')
