@@ -151,8 +151,8 @@ class CUSTOM_AI_MODEL:
             'score': max_val
         })
         
-        if len(self.move_hist) >= self.adap_thresh:
-            self.online_adapt()
+        # if len(self.move_hist) >= self.adap_thresh:
+        #     self.online_adapt()
 
         return best_x, best_piece
     

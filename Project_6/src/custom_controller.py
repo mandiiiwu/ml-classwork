@@ -44,7 +44,7 @@ def crossover(parent1, parent2, device='cpu'):
     return CUSTOM_AI_MODEL(genotype=child_ws, device=device)
 
 
-def mutate(agent, mutation_rate=0.15, mutation_scale=0.3):
+def mutate(agent, mutation_rate=0.10, mutation_scale=0.15):
     # apply random mutations
 
     weights = agent.get_genotype()
@@ -147,7 +147,7 @@ def train(num_gens, pop_size, num_trials, num_elite, surv_rate, log_file):
                 parent1, parent2 = random.sample(parents, 2)
 
                 child = crossover(parent1, parent2, device=device)
-                child = mutate(child, mutation_rate=0.15, mutation_scale=0.3)
+                child = mutate(child, mutation_rate=0.10, mutation_scale=0.1)
 
                 next_gen.append(child)
 
@@ -169,10 +169,10 @@ def train(num_gens, pop_size, num_trials, num_elite, surv_rate, log_file):
 
 if __name__ == '__main__':
     best_weights, log = train(
-        num_gens=30,            # rec: 30-100 
-        pop_size=20,            # rec: 20-50
-        num_trials=3,           # games per fitness eval
+        num_gens=100,            # rec: 30-200
+        pop_size=50,            # rec: 20-100
+        num_trials=5,           # games per fitness eval
         num_elite=3,            # top n agents to keep
-        surv_rate=0.3, 
-        log_file='custom_trial1.csv'
+        surv_rate=0.35, 
+        log_file='custom_trial3.csv'
     )
