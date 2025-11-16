@@ -61,6 +61,7 @@ def train(num_gens, pop_size, num_trials, num_elite, surv_rate, log_file):
     print(f"surv rate: {surv_rate}")
     print('=' * 70)
 
+    print_gpu_status()
     device = setup_device()
 
     headers = ['generation', 'best_fitness', 'avg_fitness', 'elite_fitness',
@@ -111,7 +112,7 @@ def train(num_gens, pop_size, num_trials, num_elite, surv_rate, log_file):
         print('=' * 70)
         print(f"gen {gen+1} summary:")
         print(f"  best fitness:    {best_fit:.2f} (pieces={best_pieces}, rows={best_rows})")
-        print(f"  avg fitness: {avg_fit:.2f}")
+        print(f"  avg fitness:     {avg_fit:.2f}")
         print(f"  elite fitness:   {elite_fit:.2f}")
         print(f"  best ever:       {bestever_fit:.2f} (pieces={bestever_pieces}, rows={bestever_rows})")
         print('=' * 70)

@@ -55,11 +55,11 @@ class Game:
             self.curr_piece = piece
             y = self.board.drop_height(self.curr_piece, x)
             self.drop(y, x=x)
-            print(f' pieces dropped: {self.pieces_dropped}, rows cleared: {self.rows_cleared}')
+            # print(f' pieces dropped: {self.pieces_dropped}, rows cleared: {self.rows_cleared}')
             if self.board.top_filled():
                 break
 
-        print(f'(statement 2) pieces dropped: {self.pieces_dropped}, rows cleared: {self.rows_cleared}')
+        print(f'total pieces dropped: {self.pieces_dropped}, total rows cleared: {self.rows_cleared}')
         return self.pieces_dropped, self.rows_cleared
 
     def run(self):
