@@ -11,11 +11,11 @@ def bool_to_np(board):
 
 
 def get_peaks(area):
-    #
     peaks = np.array([])
     for col in range(area.shape[1]):
         if 1 in area[:, col]:
-            p = area.shape[0] - np.argmax(area[:, col], axis=0)
+            filled_rows = np.where(area[:, col] == 1)[0]
+            p = filled_rows.max() + 1
             peaks = np.append(peaks, p)
         else:
             peaks = np.append(peaks, 0)

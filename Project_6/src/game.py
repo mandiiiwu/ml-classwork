@@ -9,6 +9,7 @@ from mcts import MCTS_AI
 from custom_model import CUSTOM_AI_MODEL
 from piece import Piece
 import pygame
+import torch
 
 BLACK = 0, 0, 0
 WHITE = 255, 255, 255
@@ -38,12 +39,30 @@ class Game:
         elif mode == "random":
             self.ai = RandomChoice_NOT_AI()
         elif mode == "student":
-            self.ai = CUSTOM_AI_MODEL()
-        # AFTER TRAINING, comment out line 41 and uncomment the following: 
-            # try:
-            #     weights = np.load('src/custom_data/best_weights.npy')
-            #     self.ai = CUSTOM_AI_MODEL(genotype=weights)
-            # except: self.ai = CUSTOM_AI_MODEL()
+            if agent is not None:
+                self.ai = agent
+            else:
+                try:
+                    checkpoint = torch.load('src/custom_data/best_weights.pth', map_location='cpu')
+                    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+                    from custom_model import NeuralNetwork
+                    net = NeuralNetwork(
+                        input_size=checkpoint.get('input_size', 9),
+                        hidden_size=checkpoint.get('hidden_size', 16),
+                        device=device
+                    )
+                    net.W1 = checkpoint['W1'].to(device)
+                    net.b1 = checkpoint['b1'].to(device)
+                    net.W2 = checkpoint['W2'].to(device)
+                    net.b2 = checkpoint['b2'].to(device)
+
+                    self.ai = CUSTOM_AI_MODEL(input_size=checkpoint.get('input_size', 9),
+                                             hidden_size=checkpoint.get('hidden_size', 16),
+                                             device=device)
+                    self.ai.net = net
+                    print(f'model loaded from best_weights.pth on {device}!')
+                except:
+                    self.ai = CUSTOM_AI_MODEL()
         else:
             self.ai = None
 

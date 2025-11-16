@@ -4,6 +4,7 @@ from custom_model import CUSTOM_AI_MODEL
 import random
 import pandas as pd
 import os
+import torch
 from gpu_utils import setup_device, print_gpu_status
 
 def compute_fitness(agent, num_trials=3):
@@ -107,13 +108,20 @@ def train(num_gens, pop_size, num_trials, num_elite, surv_rate, log_file):
 
         if best_fit > bestever_fit:
             bestever_fit = best_fit
-            bestever_weights = best_agent.get_genotype()
+            bestever_weights = {
+                'W1': best_agent.net.W1.cpu(),
+                'b1': best_agent.net.b1.cpu(),
+                'W2': best_agent.net.W2.cpu(),
+                'b2': best_agent.net.b2.cpu(),
+                'input_size': best_agent.input_size,
+                'hidden_size': best_agent.hidden_size
+            }
             bestever_pieces = best_pieces
             bestever_rows = best_rows
 
-            save_path = 'src/custom_data/best_weights.npy'
+            save_path = 'src/custom_data/best_weights.pth'
             os.makedirs('src/custom_data', exist_ok=True)
-            np.save(save_path, bestever_weights)
+            torch.save(bestever_weights, save_path)
             print(f"good model!!! saved to {save_path}")
 
         print('=' * 70)
@@ -160,7 +168,7 @@ def train(num_gens, pop_size, num_trials, num_elite, surv_rate, log_file):
     print(f"best fitness: {bestever_fit:.2f}")
     print(f"best pieces: {bestever_pieces:.2f}")
     print(f"best rows: {bestever_rows:.2f}")
-    print(f"best weights saved to: src/custom_data/best_weights.npy")
+    print(f"best weights saved to: src/custom_data/best_weights.pth")
     print(f"training log saved to: src/custom_data/{log_file}")
     print('*' * 70)
 
