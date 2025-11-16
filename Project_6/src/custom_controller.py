@@ -118,10 +118,10 @@ def train(num_gens, pop_size, num_trials, num_elite, surv_rate, log_file):
 
         print('=' * 70)
         print(f"gen {gen+1} summary:")
-        print(f"  best fitness:    {best_fit:.2f} (pieces={best_pieces}, rows={best_rows})")
+        print(f"  best fitness:    {best_fit:.2f} (pieces={best_pieces:.2f}, rows={best_rows:.2f})")
         print(f"  avg fitness:     {avg_fit:.2f}")
         print(f"  elite fitness:   {elite_fit:.2f}")
-        print(f"  best ever:       {bestever_fit:.2f} (pieces={bestever_pieces}, rows={bestever_rows})")
+        print(f"  best ever:       {bestever_fit:.2f} (pieces={bestever_pieces:.2f}, rows={bestever_rows:.2f})")
         print('=' * 70)
 
         data_log.append([gen+1, best_fit, avg_fit, elite_fit, best_pieces, best_rows])
@@ -158,8 +158,8 @@ def train(num_gens, pop_size, num_trials, num_elite, surv_rate, log_file):
     print("training is complete!!!")
     print('*' * 70)
     print(f"best fitness: {bestever_fit:.2f}")
-    print(f"best pieces: {bestever_pieces}")
-    print(f"best rows: {bestever_rows}")
+    print(f"best pieces: {bestever_pieces:.2f}")
+    print(f"best rows: {bestever_rows:.2f}")
     print(f"best weights saved to: src/custom_data/best_weights.npy")
     print(f"training log saved to: src/custom_data/{log_file}")
     print('*' * 70)
