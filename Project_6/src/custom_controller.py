@@ -100,6 +100,7 @@ def train(num_gens, pop_size, num_trials, num_elite, surv_rate, log_file, contin
             base_genotype = best_agent.get_genotype()
 
             for i in range(pop_size - 1):
+                agent = CUSTOM_AI_MODEL(genotype=base_genotype.copy(), device=device)
                 agent = mutate(agent, mutation_rate=0.2, mutation_scale=0.2)
                 population.append(agent)
         else:
