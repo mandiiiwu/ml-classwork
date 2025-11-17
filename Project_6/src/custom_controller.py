@@ -59,7 +59,7 @@ def mutate(agent, mutation_rate=0.15, mutation_scale=0.3):
     return agent
 
 
-def train(num_gens, pop_size, num_trials, num_elite, surv_rate, log_file):
+def train(num_gens, pop_size, num_trials, num_elite, surv_rate, log_file, continue_from_checkpoint=False):
     print('=' * 70)
     print('TRAINING NEURAL NETWORK')
     print('=' * 70)
@@ -68,6 +68,7 @@ def train(num_gens, pop_size, num_trials, num_elite, surv_rate, log_file):
     print(f"trials per agent: {num_trials}")
     print(f"elite agents: {num_elite}")
     print(f"surv rate: {surv_rate}")
+    print(f"continue from checkpoint: {continue_from_checkpoint}")
     print('=' * 70)
 
     print_gpu_status()
@@ -77,7 +78,42 @@ def train(num_gens, pop_size, num_trials, num_elite, surv_rate, log_file):
                'best_pieces', 'best_rows']
     data_log = []
 
-    population = [CUSTOM_AI_MODEL(device=device) for _ in range(pop_size)]
+    # Initialize population
+    if continue_from_checkpoint:
+        checkpoint_path = 'src/custom_data/best_weights.pth'
+        if os.path.exists(checkpoint_path):
+            print(f"\nLoading checkpoint from {checkpoint_path}")
+            checkpoint = torch.load(checkpoint_path, map_location=device)
+
+            # Create the best agent from checkpoint
+            best_agent = CUSTOM_AI_MODEL(
+                input_size=checkpoint.get('input_size', 9),
+                hidden_size=checkpoint.get('hidden_size', 16),
+                device=device
+            )
+            best_agent.net.W1 = checkpoint['W1'].to(device)
+            best_agent.net.b1 = checkpoint['b1'].to(device)
+            best_agent.net.W2 = checkpoint['W2'].to(device)
+            best_agent.net.b2 = checkpoint['b2'].to(device)
+
+            print("Checkpoint loaded successfully!")
+            print("Creating population from checkpoint with mutations...")
+
+            # Start population with the best agent + mutations
+            population = [best_agent]
+            base_genotype = best_agent.get_genotype()
+
+            for i in range(pop_size - 1):
+                # Create agent from checkpoint and mutate it
+                agent = CUSTOM_AI_MODEL(genotype=base_genotype.copy(), device=device)
+                agent = mutate(agent, mutation_rate=0.2, mutation_scale=0.2)
+                population.append(agent)
+        else:
+            print(f"\nWarning: Checkpoint not found at {checkpoint_path}")
+            print("Starting with random population instead.")
+            population = [CUSTOM_AI_MODEL(device=device) for _ in range(pop_size)]
+    else:
+        population = [CUSTOM_AI_MODEL(device=device) for _ in range(pop_size)]
 
     # track best agent
     bestever_fit = -np.inf
@@ -181,6 +217,7 @@ if __name__ == '__main__':
         pop_size=10,            # rec: 20-100
         num_trials=5,           # games per fitness eval
         num_elite=3,            # top n agents to keep
-        surv_rate=0.15, 
-        log_file='custom_trial4.csv'
+        surv_rate=0.15,
+        log_file='custom_trial4.csv',
+        continue_from_checkpoint=True  
     )

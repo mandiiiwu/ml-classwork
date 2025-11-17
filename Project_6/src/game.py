@@ -142,7 +142,7 @@ class Game:
                         if self.x - 1 >= 0:
                             occupied = False
                             for b in self.curr_piece.body:
-                                if self.y + b[1] >= self.board.width:
+                                if self.y + b[1] >= self.board.height:
                                     continue
                                 if self.board.board[self.y + b[1]][self.x + b[0] - 1]:
                                     occupied = True
@@ -153,7 +153,7 @@ class Game:
                         if self.x + 1 <= self.board.width - len(self.curr_piece.skirt):
                             occupied = False
                             for b in self.curr_piece.body:
-                                if self.y + b[1] >= self.board.width:
+                                if self.y + b[1] >= self.board.height:
                                     continue
                                 if self.board.board[self.y + b[1]][self.x + b[0] + 1]:
                                     occupied = True
