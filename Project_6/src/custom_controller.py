@@ -177,10 +177,10 @@ def train(num_gens, pop_size, num_trials, num_elite, surv_rate, log_file):
 
 if __name__ == '__main__':
     best_weights, log = train(
-        num_gens=100,            # rec: 30-200
-        pop_size=50,            # rec: 20-100
+        num_gens=10,            # rec: 30-200
+        pop_size=10,            # rec: 20-100
         num_trials=5,           # games per fitness eval
         num_elite=3,            # top n agents to keep
-        surv_rate=0.30, 
-        log_file='custom_trial3.csv'
+        surv_rate=0.15, 
+        log_file='custom_trial4.csv'
     )
