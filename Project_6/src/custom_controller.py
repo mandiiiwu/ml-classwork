@@ -78,14 +78,12 @@ def train(num_gens, pop_size, num_trials, num_elite, surv_rate, log_file, contin
                'best_pieces', 'best_rows']
     data_log = []
 
-    # Initialize population
     if continue_from_checkpoint:
         checkpoint_path = 'src/custom_data/best_weights.pth'
         if os.path.exists(checkpoint_path):
-            print(f"\nLoading checkpoint from {checkpoint_path}")
+            print(f'\nloading checkpoint from {checkpoint_path}')
             checkpoint = torch.load(checkpoint_path, map_location=device)
 
-            # Create the best agent from checkpoint
             best_agent = CUSTOM_AI_MODEL(
                 input_size=checkpoint.get('input_size', 9),
                 hidden_size=checkpoint.get('hidden_size', 16),
@@ -96,21 +94,17 @@ def train(num_gens, pop_size, num_trials, num_elite, surv_rate, log_file, contin
             best_agent.net.W2 = checkpoint['W2'].to(device)
             best_agent.net.b2 = checkpoint['b2'].to(device)
 
-            print("Checkpoint loaded successfully!")
-            print("Creating population from checkpoint with mutations...")
+            print('checkpoint loaded successfully!')
 
-            # Start population with the best agent + mutations
             population = [best_agent]
             base_genotype = best_agent.get_genotype()
 
             for i in range(pop_size - 1):
-                # Create agent from checkpoint and mutate it
-                agent = CUSTOM_AI_MODEL(genotype=base_genotype.copy(), device=device)
                 agent = mutate(agent, mutation_rate=0.2, mutation_scale=0.2)
                 population.append(agent)
         else:
-            print(f"\nWarning: Checkpoint not found at {checkpoint_path}")
-            print("Starting with random population instead.")
+            print(f'\nwarning: checkpoint not found at {checkpoint_path}')
+            print('starting with random pop instead')
             population = [CUSTOM_AI_MODEL(device=device) for _ in range(pop_size)]
     else:
         population = [CUSTOM_AI_MODEL(device=device) for _ in range(pop_size)]
@@ -213,11 +207,11 @@ def train(num_gens, pop_size, num_trials, num_elite, surv_rate, log_file, contin
 
 if __name__ == '__main__':
     best_weights, log = train(
-        num_gens=10,            # rec: 30-200
-        pop_size=10,            # rec: 20-100
-        num_trials=5,           # games per fitness eval
+        num_gens=50,            # rec: 30-200
+        pop_size=20,            # rec: 20-100
+        num_trials=7,           # games per fitness eval
         num_elite=3,            # top n agents to keep
         surv_rate=0.15,
-        log_file='custom_trial4.csv',
+        log_file='custom_trial5.csv',
         continue_from_checkpoint=True  
     )
