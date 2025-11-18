@@ -6,7 +6,7 @@ from greedy import Greedy_AI
 from genetic import Genetic_AI
 from randomChoice import RandomChoice_NOT_AI
 from mcts import MCTS_AI
-from custom_model import CUSTOM_AI_MODEL
+from custom_model import CUSTOM_AI_MODEL, load_weights
 from piece import Piece
 import pygame
 import torch
@@ -42,29 +42,9 @@ class Game:
             if agent is not None:
                 self.ai = agent
             else:
-                try:
-                    checkpoint = torch.load('src/custom_data/best_weights.pth', map_location='cpu')
-                    device = 'cuda' if torch.cuda.is_available() else 'cpu'
-                    from custom_model import NeuralNetwork
-                    net = NeuralNetwork(
-                        input_size=checkpoint.get('input_size', 9),
-                        hidden_size=checkpoint.get('hidden_size', 16),
-                        device=device
-                    )
-                    net.W1 = checkpoint['W1'].to(device)
-                    net.b1 = checkpoint['b1'].to(device)
-                    net.W2 = checkpoint['W2'].to(device)
-                    net.b2 = checkpoint['b2'].to(device)
-
-                    self.ai = CUSTOM_AI_MODEL(input_size=checkpoint.get('input_size', 9),
-                                             hidden_size=checkpoint.get('hidden_size', 16),
-                                             device=device)
-                    self.ai.net = net
-                    print(f'model loaded from best_weights.pth on {device}!')
-                except:
-                    self.ai = CUSTOM_AI_MODEL()
-        else:
-            self.ai = None
+                try: self.ai = load_weights('src/custom_data/best_weights.pth', device='cpu')
+                except: self.ai = CUSTOM_AI_MODEL()
+        else: self.ai = None
 
     def run_no_visual(self):
         if self.ai == None:

@@ -182,3 +182,22 @@ class CUSTOM_AI_MODEL:
     def set_genotype(self, genotype):
         self.net.set_weights(genotype)
         self.vel = np.zeros(len(genotype))
+
+def load_weights(path='src/custom_data/best_weights.pth', device=None):
+    if device is None:
+        device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    
+    checkpoint = torch.load(path, map_location=device)
+
+    agent = CUSTOM_AI_MODEL(
+        input_size=checkpoint.get('input_size', 9),
+        hidden_size=checkpoint.get('hidden_size', 16),
+        device=device
+    )
+
+    agent.net.W1 = checkpoint['W1'].to(device)
+    agent.net.b1 = checkpoint['b1'].to(device)
+    agent.net.W2 = checkpoint['W2'].to(device)
+    agent.net.b2 = checkpoint['b2'].to(device)
+
+    return agent
