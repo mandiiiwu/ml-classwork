@@ -85,14 +85,17 @@ def train(num_gens, pop_size, num_trials, num_elite, surv_rate, log_file, contin
             checkpoint = torch.load(checkpoint_path, map_location=device)
 
             best_agent = CUSTOM_AI_MODEL(
-                input_size=checkpoint.get('input_size', 9),
-                hidden_size=checkpoint.get('hidden_size', 16),
+                input_size=checkpoint.get('input_size', 10),
+                hidden_size1=checkpoint.get('hidden_size1', 32),
+                hidden_size2=checkpoint.get('hidden_size2', 16),
                 device=device
             )
             best_agent.net.W1 = checkpoint['W1'].to(device)
             best_agent.net.b1 = checkpoint['b1'].to(device)
             best_agent.net.W2 = checkpoint['W2'].to(device)
             best_agent.net.b2 = checkpoint['b2'].to(device)
+            best_agent.net.W3 = checkpoint['W3'].to(device)
+            best_agent.net.b3 = checkpoint['b3'].to(device)
 
             print('checkpoint loaded successfully!')
 
@@ -144,8 +147,11 @@ def train(num_gens, pop_size, num_trials, num_elite, surv_rate, log_file, contin
                 'b1': best_agent.net.b1.cpu(),
                 'W2': best_agent.net.W2.cpu(),
                 'b2': best_agent.net.b2.cpu(),
+                'W3': best_agent.net.W3.cpu(),
+                'b3': best_agent.net.b3.cpu(),
                 'input_size': best_agent.input_size,
-                'hidden_size': best_agent.hidden_size
+                'hidden_size1': best_agent.hidden_size1,
+                'hidden_size2': best_agent.hidden_size2
             }
             bestever_pieces = best_pieces
             bestever_rows = best_rows
@@ -213,6 +219,6 @@ if __name__ == '__main__':
         num_trials=7,           # games per fitness eval
         num_elite=3,            # top n agents to keep
         surv_rate=0.15,
-        log_file='custom_trial5.csv',
+        log_file='custom_trial6.csv',
         continue_from_checkpoint=True  
     )
