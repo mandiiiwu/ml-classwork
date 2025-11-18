@@ -7,10 +7,6 @@ from board import Board
 from random import randint
 from genetic_helpers import *
 
-"""
-Add your code here 
-"""
-
 class NeuralNetwork: 
     def __init__(self, input_size=9, hidden_size=16, weights=None, device='cpu'):
         self.input_size = input_size
@@ -18,7 +14,7 @@ class NeuralNetwork:
         self.device = device 
 
         if weights is None:
-            # xavier initialization for weights
+            # initialize weights (xavier initialization from geeks4geeks)
             lim1 = np.sqrt(6 / (input_size + hidden_size))
             lim2 = np.sqrt(6 / (hidden_size + 1))
 
@@ -29,7 +25,7 @@ class NeuralNetwork:
             self.b2 = torch.zeros(1, device=device)
 
         else:
-            # reconstruct from flattened like in typical genetic algs 
+            # rebuild weights from array 
             self.set_weights(weights) 
     
     def forward(self, x):
@@ -73,25 +69,15 @@ class NeuralNetwork:
 
 
 class CUSTOM_AI_MODEL:
-    def __init__(self, genotype=None, input_size=9, hidden_size=16, lr=0.001, momentum=0.9, device='cpu'):
+    def __init__(self, genotype=None, input_size=9, hidden_size=16, device='cpu'):
         self.input_size = input_size
         self.hidden_size = hidden_size
-        self.lr = lr
-        self.momentum = momentum
 
         self.device = device
 
         if genotype is not None:
             self.net = NeuralNetwork(self.input_size, self.hidden_size, genotype, device)
         else: self.net = NeuralNetwork(self.input_size, self.hidden_size, device=device)
-
-        self.vel = np.zeros(self.net.get_weight_count())
-        self.best_sc = -np.inf 
-        self.curr_sc = 0
-        self.move_hist = [] 
-
-        self.recent_scs = []
-        self.adap_thresh = 5 # adaptive threshold 
 
     def extract_features(self, board):
         peaks = get_peaks(board)
@@ -120,7 +106,6 @@ class CUSTOM_AI_MODEL:
         score = self.net.forward(feats)
         return score
 
-
     def get_best_move(self, board, piece, depth=1):
         best_x = 0
         max_val = -np.inf
@@ -145,43 +130,13 @@ class CUSTOM_AI_MODEL:
                     best_x = x
                     best_piece = piece
         
-        self.move_hist.append({
-            'position': best_x,
-            'piece': best_piece,
-            'score': max_val
-        })
-        
-        # if len(self.move_hist) >= self.adap_thresh:
-        #     self.online_adapt()
-
         return best_x, best_piece
-    
-    def online_adapt(self):
-        if len(self.move_hist) < 2:
-            return
-        
-        rec_moves = self.move_hist[-self.adap_thresh:]
-        scores = [x['score'] for x in rec_moves]
-
-        # if performance is getting worse then try to adapt 
-        if len(scores) >= 2:
-            trend = np.mean(np.diff(scores))
-
-            if trend < 0: # only adapt if perf is not improving 
-                curr_weights = self.net.get_f_weights()
-                ptb = np.random.normal(0, 0.01, len(curr_weights)) # perturbation
-
-                self.vel = self.momentum * self.vel + self.lr * ptb
-
-                new_weights = curr_weights + self.vel
-                self.net.set_weights(new_weights)
-        
+            
     def get_genotype(self):
         return self.net.get_f_weights()
     
     def set_genotype(self, genotype):
         self.net.set_weights(genotype)
-        self.vel = np.zeros(len(genotype))
 
 def load_weights(path='src/custom_data/best_weights.pth', device=None):
     if device is None:
