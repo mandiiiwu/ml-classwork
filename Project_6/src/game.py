@@ -49,6 +49,7 @@ class Game:
     def run_no_visual(self):
         if self.ai == None:
             return -1
+        print('starting game!')
         while True:
             x, piece = self.ai.get_best_move(self.board, self.curr_piece)
             self.curr_piece = piece

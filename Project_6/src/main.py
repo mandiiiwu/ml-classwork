@@ -18,7 +18,7 @@ def main():
     # g.run()
     end = time.time() 
     dur = end - start
-    print(f'duration: {dur}')
+    print(f'duration: {dur} seconds')
     
 
     # for a visual, comment out line 16 and uncomment line 17 
