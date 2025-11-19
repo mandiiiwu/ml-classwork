@@ -16,7 +16,7 @@ def compute_fitness(agent, num_trials=3):
         game = Game('student', agent=agent)
         p_dropped, rows_cleared = game.run_no_visual()
 
-        fitness = p_dropped + (rows_cleared * 2.0)
+        fitness = p_dropped + (rows_cleared * 4.0)
         fitness_scores.append(fitness)
 
         pieces.append(p_dropped)
@@ -220,5 +220,5 @@ if __name__ == '__main__':
         num_elite=3,            # top n agents to keep
         surv_rate=0.15,
         log_file='custom_trial6.csv',
-        continue_from_checkpoint=True  
+        continue_from_checkpoint=False  
     )
