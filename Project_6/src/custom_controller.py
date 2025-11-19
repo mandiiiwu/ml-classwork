@@ -219,6 +219,6 @@ if __name__ == '__main__':
         num_trials=7,           # games per fitness eval
         num_elite=3,            # top n agents to keep
         surv_rate=0.15,
-        log_file='custom_trial6.csv',
-        continue_from_checkpoint=False  
+        log_file='custom_trial7.csv',
+        continue_from_checkpoint=True  
     )
